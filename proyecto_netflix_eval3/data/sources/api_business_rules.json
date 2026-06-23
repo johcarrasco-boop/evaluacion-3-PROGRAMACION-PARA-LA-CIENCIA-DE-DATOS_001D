@@ -1,0 +1,53 @@
+{
+  "source": "mock_rest_api_business_rules",
+  "version": "1.0",
+  "description": "Reglas de negocio simuladas para enriquecer el ETL de churn Netflix.",
+  "genre_priority": [
+    {
+      "favorite_genre": "Action",
+      "genre_priority_score": 0.78,
+      "campaign": "Trailers y estrenos de acción"
+    },
+    {
+      "favorite_genre": "Comedy",
+      "genre_priority_score": 0.71,
+      "campaign": "Comedias recomendadas"
+    },
+    {
+      "favorite_genre": "Documentary",
+      "genre_priority_score": 0.64,
+      "campaign": "Documentales personalizados"
+    },
+    {
+      "favorite_genre": "Drama",
+      "genre_priority_score": 0.69,
+      "campaign": "Series dramáticas"
+    },
+    {
+      "favorite_genre": "Horror",
+      "genre_priority_score": 0.73,
+      "campaign": "Contenido de terror semanal"
+    },
+    {
+      "favorite_genre": "Romance",
+      "genre_priority_score": 0.66,
+      "campaign": "Películas románticas"
+    },
+    {
+      "favorite_genre": "Sci-Fi",
+      "genre_priority_score": 0.82,
+      "campaign": "Ciencia ficción y estrenos"
+    },
+    {
+      "favorite_genre": "Thriller",
+      "genre_priority_score": 0.76,
+      "campaign": "Thrillers recomendados"
+    }
+  ],
+  "risk_rules": {
+    "inactive_days_high": 21,
+    "inactive_days_medium": 10,
+    "low_sessions_threshold": 4,
+    "high_sessions_threshold": 12
+  }
+}
