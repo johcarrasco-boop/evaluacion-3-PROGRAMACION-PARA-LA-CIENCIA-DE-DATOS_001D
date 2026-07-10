@@ -1,14 +1,4 @@
 services:
-  etl:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.api
-    command: python etl/run_etl.py --project-root /app --api-url http://api:8000/business-rules
-    volumes:
-      - ./data:/app/data
-    depends_on:
-      - api
-
   api:
     build:
       context: .
@@ -19,6 +9,28 @@ services:
       - .env.example
     volumes:
       - ./data:/app/data
+      - ./models:/app/models
+
+  etl:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    command: python etl/run_etl.py --project-root /app --api-url http://api:8000/business-rules
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - api
+
+  ml:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    command: python models/train_models.py --project-root /app
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    depends_on:
+      - etl
 
   dashboard:
     build:
@@ -30,5 +42,6 @@ services:
       - .env.example
     volumes:
       - ./data:/app/data
+      - ./models:/app/models
     depends_on:
-      - api
+      - ml

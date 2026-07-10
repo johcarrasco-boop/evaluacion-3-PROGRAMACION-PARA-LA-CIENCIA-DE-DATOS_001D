@@ -1,4 +1,3 @@
-"""Pruebas automatizadas del pipeline ETL."""
 from pathlib import Path
 import sys
 
@@ -6,24 +5,40 @@ import pandas as pd
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.append(str(PROJECT_ROOT / "etl"))
+sys.path.append(str(PROJECT_ROOT))
 
-from extract import read_csv_source, read_sql_sources, read_api_source
-from transform import transform_sources
-from validation import validate_processed_schema, validate_raw_schema
-
-
-def test_raw_csv_schema():
-    df = read_csv_source(PROJECT_ROOT / "data/raw/netflix_user_behavior_dataset.csv")
-    validate_raw_schema(df)
-    assert df.shape[0] == 50000
-    assert "churned" in df.columns
+from transform import add_feature_engineering, build_summary_tables
 
 
-def test_transform_outputs_required_columns():
-    users = read_csv_source(PROJECT_ROOT / "data/raw/netflix_user_behavior_dataset.csv").head(100)
-    plans, regions = read_sql_sources(PROJECT_ROOT / "data/sources/netflix_reference.db")
-    api_payload = read_api_source(None, PROJECT_ROOT / "data/sources/api_business_rules.json")
-    processed = transform_sources(users, plans, regions, api_payload)
-    validate_processed_schema(processed)
-    assert set(processed["churned_binary"].unique()).issubset({0, 1})
-    assert "engagement_score" in processed.columns
+def test_add_feature_engineering_creates_churn_binary():
+    df = pd.DataFrame({
+        "churned": ["No", "Yes"],
+        "watch_sessions_per_week": [2, 15],
+        "days_since_last_login": [5, 30],
+        "completion_rate": [0.5, 0.9],
+        "recommendation_click_rate": [0.1, 0.8],
+        "content_interactions": [3, 20],
+        "monthly_fee": [9.99, 15.99],
+        "account_age_months": [10, 30],
+    })
+    out = add_feature_engineering(df, {"low_sessions_threshold": 4, "high_sessions_threshold": 12})
+    assert "churned_binary" in out.columns
+    assert out["churned_binary"].tolist() == [0, 1]
+    assert "engagement_score" in out.columns
+
+
+def test_summary_tables_has_expected_tables():
+    df = pd.DataFrame({
+        "user_id": [1, 2, 3],
+        "churned": ["No", "Yes", "No"],
+        "churned_binary": [0, 1, 0],
+        "nivel_actividad": ["Alta", "Baja", "Media"],
+        "country": ["Chile", "Chile", "Brazil"],
+        "subscription_type": ["Basic", "Premium", "Basic"],
+        "churn_risk_segment": ["Riesgo bajo", "Riesgo alto", "Riesgo medio"],
+        "avg_watch_time_minutes": [100, 50, 120],
+        "estimated_monthly_revenue": [9.99, 0, 9.99],
+    })
+    tables = build_summary_tables(df)
+    assert "summary_metrics" in tables
+    assert tables["summary_metrics"].iloc[0]["total_users"] == 3

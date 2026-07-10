@@ -1,0 +1,5 @@
+real,predicho,usuarios
+No churn,No churn,385
+No churn,Churn,416
+Churn,No churn,83
+Churn,Churn,116
