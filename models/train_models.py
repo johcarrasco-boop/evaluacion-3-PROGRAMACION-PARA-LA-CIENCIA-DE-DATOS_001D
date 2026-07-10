@@ -79,30 +79,30 @@ def train_classification(df: pd.DataFrame, artifacts_dir: Path) -> tuple[pd.Data
     drop_cols = ["user_id", "churned", target, "estimated_monthly_revenue"]
     x = df.drop(columns=[c for c in drop_cols if c in df.columns])
     if target not in df.columns:
-    if "churned" in df.columns:
-        df[target] = (
-            df["churned"]
-            .astype(str)
-            .str.strip()
-            .str.lower()
-            .map({
-                "yes": 1,
-                "no": 0,
-                "true": 1,
-                "false": 0,
-                "1": 1,
-                "0": 0,
-                "si": 1,
-                "sí": 1
-            })
-        )
+        if "churned" in df.columns:
+            df[target] = (
+                df["churned"]
+                .astype(str)
+                .str.strip()
+                .str.lower()
+                .map({
+                    "yes": 1,
+                    "no": 0,
+                    "true": 1,
+                    "false": 0,
+                    "1": 1,
+                    "0": 0,
+                    "si": 1,
+                    "sí": 1
+                })
+            )
 
-        if df[target].isna().any():
-            df[target] = df["churned"].astype(int)
-    else:
-        raise KeyError("No existe la columna churned_binary ni churned para entrenar el modelo.")
+            if df[target].isna().any():
+                df[target] = df["churned"].astype(int)
+        else:
+            raise KeyError("No existe la columna churned_binary ni churned para entrenar el modelo.")
 
-y = df[target].astype(int)
+    y = df[target].astype(int)
 
     x_train, x_test, y_train, y_test = train_test_split(
         x, y, test_size=0.2, random_state=RANDOM_STATE, stratify=y
